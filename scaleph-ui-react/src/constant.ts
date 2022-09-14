@@ -26,6 +26,11 @@ export const DICT_TYPE = {
   flinkVersion: 'flink_version',
   flinkStateBackend: 'flink_state_backend',
   flinkClusterStatus: 'flink_cluster_status',
+  flinkSemantic: 'flink_semantic',
+  flinkCheckpointRetain: 'flink_checkpoint_retain',
+  flinkRestartStrategy: 'flink_restart_strategy',
+  flinkHA: 'flink_high_availability',
+  seatunnelVersion: 'seatunnel_version',
 };
 
 export const USER_AUTH = {
@@ -34,6 +39,11 @@ export const USER_AUTH = {
   pCodes: 'u_pCode',
   roleSysAdmin: 'sys_super_admin',
   expireTime: 'u_expire_time',
+};
+
+export const RESOURCE_TYPE = {
+  flinkRelease: 'flink_release',
+  clusterCredential: 'cluster_credential',
 };
 
 export const WORKSPACE_CONF = {

@@ -1,11 +1,10 @@
-import {Dict, QueryParam} from "@/app";
+import {Dict, QueryParam} from "@/app.d";
 import {ClusterCredential, FlinkRelease} from "@/services/resource/typings";
 
 export type FlinkArtifact = {
   id?: number;
   name?: string;
-  path?: string;
-  entryClass?: string;
+  type?: Dict;
   remark?: string;
   createTime?: Date;
   updateTime?: Date;
@@ -13,13 +12,32 @@ export type FlinkArtifact = {
 
 export type FlinkArtifactListParam = QueryParam & {
   name?: string;
+  type?: string;
 };
 
-export type FlinkArtifactUploadParam = QueryParam & {
-  name?: string;
+export type FlinkArtifactJar = {
+  id?: number;
+  flinkArtifact: FlinkArtifact;
+  version?: string;
+  flinkVersion: Dict;
+  entryClass: string;
+  fileName?: string;
+  path?: string;
+  remark?: string;
+  createTime?: Date;
+  updateTime?: Date;
+}
+
+export type FlinkArtifactJarListParam = QueryParam & {
+  flinkArtifactId?: number;
+};
+
+export type FlinkArtifactJarUploadParam = QueryParam & {
+  flinkArtifactId: number;
+  version?: string;
+  flinkVersion: string;
   entryClass?: string;
   file?: File;
-  remark?: string;
 };
 
 export type FlinkClusterConfig = {
@@ -69,9 +87,11 @@ export type FlinkSessionClusterNewParam = QueryParam & {
 export type FlinkJobConfigJar = {
   id?: number;
   name?: string;
-  flinkArtifact?: FlinkArtifact;
+  flinkArtifactJar?: FlinkArtifactJar;
   flinkClusterConfig?: FlinkClusterConfig;
   flinkClusterInstance?: FlinkClusterInstance;
+  jobConfig?: { [key: string]: any };
+  flinkConfig?: { [key: string]: any };
   remark?: string;
   createTime?: Date;
   updateTime?: Date;

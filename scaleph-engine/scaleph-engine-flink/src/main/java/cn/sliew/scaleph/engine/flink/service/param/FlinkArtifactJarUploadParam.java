@@ -18,24 +18,27 @@
 
 package cn.sliew.scaleph.engine.flink.service.param;
 
-import cn.sliew.scaleph.common.param.PaginationParam;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class FlinkJobInstanceListParam extends PaginationParam {
+public class FlinkArtifactJarUploadParam {
 
-    @ApiModelProperty("flink 任务配置 ID")
-    private Long flinkJobConfigId;
+    @NotNull
+    @ApiModelProperty("Flink Artifact ID")
+    private Long flinkArtifactId;
 
-    @ApiModelProperty("flink 集群实例 ID")
-    private Long flinkClusterInstanceId;
+    @ApiModelProperty("Jar 版本")
+    private String version;
 
-    @ApiModelProperty("flink 任务 ID")
-    private Long jobId;
+    @NotBlank
+    @ApiModelProperty("flink 版本")
+    private String flinkVersion;
 
-    @ApiModelProperty("任务状态。0: 已创建, 1: 创建失败")
-    private String status;
+    @NotBlank
+    @ApiModelProperty("Entry Class")
+    private String entryClass;
 }

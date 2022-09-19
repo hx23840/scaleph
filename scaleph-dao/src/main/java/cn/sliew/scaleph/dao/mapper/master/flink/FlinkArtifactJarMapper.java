@@ -16,28 +16,28 @@
  * limitations under the License.
  */
 
-package cn.sliew.scaleph.engine.flink.service;
+package cn.sliew.scaleph.dao.mapper.master.flink;
 
-import cn.sliew.scaleph.engine.flink.service.dto.FlinkArtifactDTO;
-import cn.sliew.scaleph.engine.flink.service.param.FlinkArtifactListParam;
+import cn.sliew.scaleph.dao.entity.master.flink.FlinkArtifactJar;
+import cn.sliew.scaleph.dao.entity.master.flink.FlinkArtifactJarVO;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
+/**
+ * <p>
+ * flink artifact jar Mapper 接口
+ * </p>
+ */
+@Repository
+public interface FlinkArtifactJarMapper extends BaseMapper<FlinkArtifactJar> {
 
-public interface FlinkArtifactService {
+    String findMaxVersion(@Param("flinkArtifactId") Long flinkArtifactId);
 
-    Page<FlinkArtifactDTO> list(FlinkArtifactListParam param);
+    Page<FlinkArtifactJarVO> list(Page<FlinkArtifactJar> page,
+                                  @Param("param") FlinkArtifactJar param);
 
-//    Page<FlinkArtifactDTO> listJars(FlinkArtifactListParam param);
-
-    FlinkArtifactDTO selectOne(Long id);
-
-    int insert(FlinkArtifactDTO dto);
-
-    int update(FlinkArtifactDTO dto);
-
-    int deleteById(Long id);
-
-    int deleteBatch(List<Long> ids);
+    FlinkArtifactJarVO getById(@Param("id") Long id);
 
 }

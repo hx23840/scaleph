@@ -16,23 +16,48 @@
  * limitations under the License.
  */
 
-package cn.sliew.scaleph.engine.flink.service.param;
+package cn.sliew.scaleph.engine.flink.service.dto;
 
+import cn.sliew.scaleph.common.dto.BaseDTO;
+import cn.sliew.scaleph.system.service.vo.DictVO;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
+/**
+ * <p>
+ * flink artifact jar
+ * </p>
+ */
 @Data
-public class FlinkArtifactUploadParam {
+@EqualsAndHashCode(callSuper = true)
+@ApiModel(value = "FlinkArtifactJar对象", description = "flink artifact jar")
+public class FlinkArtifactJarDTO extends BaseDTO {
+
+    @NotNull
+    @ApiModelProperty("Flink Artifact")
+    private FlinkArtifactDTO flinkArtifact;
 
     @NotBlank
-    @ApiModelProperty("名称")
-    private String name;
+    @ApiModelProperty("Jar 版本")
+    private String version;
 
-    @ApiModelProperty("entry point class")
+    @NotBlank
+    @ApiModelProperty("flink 版本")
+    private DictVO flinkVersion;
+
+    @NotBlank
+    @ApiModelProperty("Entry Class")
     private String entryClass;
 
-    @ApiModelProperty("备注")
-    private String remark;
+    @ApiModelProperty("Jar 文件名")
+    private String fileName;
+
+    @ApiModelProperty("Jar 存储路径")
+    private String path;
+
 }

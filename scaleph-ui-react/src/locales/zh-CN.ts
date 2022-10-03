@@ -44,6 +44,8 @@ export default {
   'app.common.operate.reset.label': '重置',
   'app.common.operate.confirm.label': '确认',
   'app.common.operate.submit.label': '提交',
+  'app.common.operate.submit.confirm.title': '确认提交？',
+  'app.common.operate.submit.confirm.content': '提交前请仔细检查，谨慎操作',
   'app.common.operate.cancel.label': '取消',
   'app.common.operate.clear.label': '清空',
   'app.common.operate.return.label': '返回',
@@ -56,6 +58,7 @@ export default {
   'app.common.operate.enable.label': '启用',
   'app.common.operate.grant.label': '授权',
   'app.common.operate.grant.title': '{name}授权',
+  'app.common.operate.detail.label': '查看',
   'app.common.error.label': '错误',
   'app.common.message.system': '系统消息',
   'app.common.validate.characterWord': '只能输入字母数字、下划线',
@@ -65,6 +68,5 @@ export default {
   'app.common.validate.sameUserName': '用户名已存在',
   'app.common.validate.sameEmail': '邮箱已存在',
   'app.common.validate.samePassword': '两次输入的密码不一致',
-  'app.common.validate.patternPassword': '密码格式错误，请输入数字和字母组成的字符串',
   'app.common.validate.sameToOldPassword': '新密码不能与旧密码一致',
 };

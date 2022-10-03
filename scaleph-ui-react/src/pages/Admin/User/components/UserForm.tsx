@@ -1,8 +1,8 @@
 import { Dict, ModalFormProps } from '@/app.d';
 import { DICT_TYPE } from '@/constant';
-import { listDictDataByType } from '@/services/admin/dictData.service';
+import { DictDataService } from '@/services/admin/dictData.service';
 import { SecUser } from '@/services/admin/typings';
-import { addUser, isEmailExists, isUserExists, updateUser } from '@/services/admin/user.service';
+import { UserService } from '@/services/admin/user.service';
 import { Col, DatePicker, Form, Input, message, Modal, Row, Select } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
@@ -20,13 +20,13 @@ const UserForm: React.FC<ModalFormProps<SecUser>> = ({
   const [nationList, setNationList] = useState<Dict[]>([]);
   const [idCardTypeList, setIdCardTypeList] = useState<Dict[]>([]);
   useEffect(() => {
-    listDictDataByType(DICT_TYPE.idCardType).then((d) => {
+    DictDataService.listDictDataByType(DICT_TYPE.idCardType).then((d) => {
       setIdCardTypeList(d);
     });
-    listDictDataByType(DICT_TYPE.gender).then((d) => {
+    DictDataService.listDictDataByType(DICT_TYPE.gender).then((d) => {
       setGenderList(d);
     });
-    listDictDataByType(DICT_TYPE.nation).then((d) => {
+    DictDataService.listDictDataByType(DICT_TYPE.nation).then((d) => {
       setNationList(d);
     });
   }, []);
@@ -37,11 +37,12 @@ const UserForm: React.FC<ModalFormProps<SecUser>> = ({
       title={
         data.id
           ? intl.formatMessage({ id: 'app.common.operate.edit.label' }) +
-          intl.formatMessage({ id: 'pages.admin.user' })
+            intl.formatMessage({ id: 'pages.admin.user' })
           : intl.formatMessage({ id: 'app.common.operate.new.label' }) +
-          intl.formatMessage({ id: 'pages.admin.user' })
+            intl.formatMessage({ id: 'pages.admin.user' })
       }
       width={780}
+      bodyStyle={{ maxHeight: '640px', overflowY: 'scroll' }}
       destroyOnClose={true}
       onCancel={onCancel}
       onOk={() => {
@@ -63,18 +64,18 @@ const UserForm: React.FC<ModalFormProps<SecUser>> = ({
             summary: values.summary,
           };
           data.id
-            ? updateUser({ ...user }).then((d) => {
-              if (d.success) {
-                message.success(intl.formatMessage({ id: 'app.common.operate.edit.success' }));
-                onVisibleChange(false);
-              }
-            })
-            : addUser({ ...user }).then((d) => {
-              if (d.success) {
-                message.success(intl.formatMessage({ id: 'app.common.operate.new.success' }));
-                onVisibleChange(false);
-              }
-            });
+            ? UserService.updateUser({ ...user }).then((d) => {
+                if (d.success) {
+                  message.success(intl.formatMessage({ id: 'app.common.operate.edit.success' }));
+                  onVisibleChange(false);
+                }
+              })
+            : UserService.addUser({ ...user }).then((d) => {
+                if (d.success) {
+                  message.success(intl.formatMessage({ id: 'app.common.operate.new.success' }));
+                  onVisibleChange(false);
+                }
+              });
         });
       }}
     >
@@ -92,7 +93,7 @@ const UserForm: React.FC<ModalFormProps<SecUser>> = ({
           idCardType: data.idCardType?.value,
           idCardNo: data.idCardNo,
           nation: data.nation?.value,
-          birthday: data.id ? moment(data?.birthday, 'YYYY-MM-DD') : null,
+          birthday: data.birthday ? moment(data.birthday, 'YYYY-MM-DD HH:mm:ss') : null,
           qq: data.qq,
           wechat: data.wechat,
           summary: data.summary,
@@ -118,15 +119,15 @@ const UserForm: React.FC<ModalFormProps<SecUser>> = ({
                   validator: (rule, value, callback) => {
                     data.id
                       ? callback()
-                      : isUserExists(value).then((resp) => {
-                        if (resp) {
-                          callback();
-                        } else {
-                          callback(
-                            intl.formatMessage({ id: 'app.common.validate.sameUserName' }),
-                          );
-                        }
-                      });
+                      : UserService.isUserExists(value).then((resp) => {
+                          if (resp) {
+                            callback();
+                          } else {
+                            callback(
+                              intl.formatMessage({ id: 'app.common.validate.sameUserName' }),
+                            );
+                          }
+                        });
                   },
                 },
               ]}
@@ -146,13 +147,13 @@ const UserForm: React.FC<ModalFormProps<SecUser>> = ({
                   validator: (rule, value, callback) => {
                     data.id
                       ? callback()
-                      : isEmailExists(value).then((resp) => {
-                        if (resp) {
-                          callback();
-                        } else {
-                          callback(intl.formatMessage({ id: 'app.common.validate.sameEmail' }));
-                        }
-                      });
+                      : UserService.isEmailExists(value).then((resp) => {
+                          if (resp) {
+                            callback();
+                          } else {
+                            callback(intl.formatMessage({ id: 'app.common.validate.sameEmail' }));
+                          }
+                        });
                   },
                 },
               ]}

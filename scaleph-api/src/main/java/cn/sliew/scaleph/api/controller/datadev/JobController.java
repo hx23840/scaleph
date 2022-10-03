@@ -19,7 +19,6 @@
 package cn.sliew.scaleph.api.controller.datadev;
 
 import cn.hutool.core.collection.CollectionUtil;
-import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import cn.sliew.scaleph.api.annotation.Logging;
@@ -28,19 +27,20 @@ import cn.sliew.scaleph.api.vo.ResponseVO;
 import cn.sliew.scaleph.common.constant.Constants;
 import cn.sliew.scaleph.common.constant.DictConstants;
 import cn.sliew.scaleph.common.enums.*;
-import cn.sliew.scaleph.common.exception.CustomException;
+import cn.sliew.scaleph.common.exception.ScalephException;
 import cn.sliew.scaleph.core.di.service.*;
 import cn.sliew.scaleph.core.di.service.dto.*;
 import cn.sliew.scaleph.core.di.service.param.DiJobParam;
-import cn.sliew.scaleph.core.di.service.vo.DiJobAttrVO;
-import cn.sliew.scaleph.core.di.service.vo.DiJobRunVO;
-import cn.sliew.scaleph.core.di.service.vo.JobGraphVO;
+import cn.sliew.scaleph.core.di.service.vo.*;
 import cn.sliew.scaleph.core.scheduler.service.ScheduleService;
+import cn.sliew.scaleph.dao.DataSourceConstants;
 import cn.sliew.scaleph.engine.seatunnel.service.SeatunnelJobService;
+import cn.sliew.scaleph.engine.seatunnel.service.dto.DagPanelDTO;
 import cn.sliew.scaleph.engine.seatunnel.service.util.QuartzJobUtil;
 import cn.sliew.scaleph.system.service.vo.DictVO;
 import cn.sliew.scaleph.system.util.I18nUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.common.primitives.Primitives;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +56,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,13 +81,7 @@ public class JobController {
     @Autowired
     private DiJobLinkService diJobLinkService;
     @Autowired
-    private DiJobStepAttrService diJobStepAttrService;
-    @Autowired
-    private DiJobStepAttrTypeService diJobStepAttrTypeService;
-
-    @Autowired
     private DiJobResourceFileService diJobResourceFileService;
-
     @Autowired
     private ScheduleService scheduleService;
     @Autowired
@@ -143,7 +136,7 @@ public class JobController {
 
     @Logging
     @DeleteMapping(path = "/{id}")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "删除作业", notes = "删除作业")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_DELETE)")
     public ResponseEntity<ResponseVO> deleteJob(@PathVariable(value = "id") Long id) {
@@ -162,7 +155,7 @@ public class JobController {
 
     @Logging
     @PostMapping(path = "/batch")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "批量删除作业", notes = "批量删除作业")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_DELETE)")
     public ResponseEntity<ResponseVO> deleteJob(@RequestBody Map<Integer, String> map) {
@@ -197,7 +190,7 @@ public class JobController {
 
     @Logging
     @PostMapping(path = "/detail")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "保存作业详情", notes = "保存作业相关流程定义，如果已经有对应版本号的数据，则提醒用户编辑最新版本。")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
     public ResponseEntity<ResponseVO> saveJobDetail(@Validated @RequestBody DiJobDTO diJobDTO) {
@@ -206,7 +199,7 @@ public class JobController {
             Long editableJobId = prepareJobVersion(job);
             saveJobGraph(diJobDTO.getJobGraph(), editableJobId);
             return new ResponseEntity<>(ResponseVO.sucess(editableJobId), HttpStatus.CREATED);
-        } catch (CustomException e) {
+        } catch (ScalephException e) {
             return new ResponseEntity<>(ResponseVO.error(ResponseCodeEnum.ERROR_CUSTOM.getCode(),
                     e.getMessage(), ErrorShowTypeEnum.NOTIFICATION), HttpStatus.OK);
         }
@@ -218,9 +211,9 @@ public class JobController {
      * @param job job info
      * @return job id
      */
-    private Long prepareJobVersion(DiJobDTO job) throws CustomException {
+    private Long prepareJobVersion(DiJobDTO job) throws ScalephException {
         if (JobStatusEnum.ARCHIVE.getValue().equals(job.getJobStatus().getValue())) {
-            throw new CustomException(I18nUtil.get("response.error.di.job.lowVersion"));
+            throw new ScalephException(I18nUtil.get("response.error.di.job.lowVersion"));
         }
 
         if (JobStatusEnum.RELEASE.getValue().equals(job.getJobStatus().getValue())) {
@@ -228,7 +221,7 @@ public class JobController {
             int jobVersion = job.getJobVersion() + 1;
             DiJobDTO newVersionJob = diJobService.selectOne(job.getProjectId(), job.getJobCode(), jobVersion);
             if (newVersionJob != null) {
-                throw new CustomException(I18nUtil.get("response.error.di.job.lowVersion"));
+                throw new ScalephException(I18nUtil.get("response.error.di.job.lowVersion"));
             }
             job.setId(null);
             job.setJobVersion(jobVersion);
@@ -241,76 +234,41 @@ public class JobController {
         return job.getId();
     }
 
-    private String getStepAttrByKey(JobGraphVO graph, String key, String defaultValue) {
-        if (graph == null) {
-            return defaultValue;
-        }
-        Map<String, Object> dataList = graph.getData();
-        if (CollectionUtil.isNotEmpty(dataList) && dataList.containsKey(key)) {
-            return String.valueOf(dataList.get(key));
-        }
 
-        return defaultValue;
-    }
-
-    private Integer getPositionByKey(JobGraphVO graph, String key, Integer defaultValue) {
-        if (graph == null) {
-            return defaultValue;
-        }
-        Map<String, Integer> position = graph.getPosition();
-        if (CollectionUtil.isNotEmpty(position) && position.containsKey(key)) {
-            return position.get(key);
-        }
-
-        return defaultValue;
-    }
-
-    private void saveJobGraph(Map<String, List<JobGraphVO>> jobGraph, Long jobId) {
-        String cellKey = "cells";
-        String stepShape = "angular-shape";
-        String linkShape = "edge";
-        if (CollectionUtil.isNotEmpty(jobGraph)) {
-            Map<String, List<JobGraphVO>> map = jobGraph;
-            if (map.containsKey(cellKey)) {
-                List<JobGraphVO> list = map.get(cellKey);
-                // 清除图中已删除的连线信息
-                List<String> linkList = list.stream()
-                        .filter(j -> linkShape.equals(j.getShape()))
-                        .map(JobGraphVO::getId)
-                        .collect(Collectors.toList());
-                this.diJobLinkService.deleteSurplusLink(jobId, linkList);
-                //清除图中已删除的节点信息及节点属性
-                List<String> stepList = list.stream()
-                        .filter(j -> stepShape.equals(j.getShape()))
-                        .map(JobGraphVO::getId)
-                        .collect(Collectors.toList());
-                this.diJobStepService.deleteSurplusStep(jobId, stepList);
-                if (CollectionUtil.isNotEmpty(list)) {
-                    for (JobGraphVO graph : list) {
-                        if (stepShape.equals(graph.getShape())) {
-                            //插入新的，更新已有的 这里不处理节点属性信息
-                            DiJobStepDTO jobStep = new DiJobStepDTO();
-                            jobStep.setJobId(jobId);
-                            jobStep.setStepCode(graph.getId());
-                            jobStep.setStepTitle(getStepAttrByKey(graph, "title", ""));
-                            String type = getStepAttrByKey(graph, "type", "");
-                            jobStep.setStepType(DictVO.toVO(DictConstants.JOB_STEP_TYPE, type));
-                            jobStep.setStepName(getStepAttrByKey(graph, "name", ""));
-                            jobStep.setPositionX(getPositionByKey(graph, "x", 0));
-                            jobStep.setPositionY(getPositionByKey(graph, "y", 0));
-                            this.diJobStepService.upsert(jobStep);
-                        }
-                        if (linkShape.equals(graph.getShape())) {
-                            //插入新的
-                            DiJobLinkDTO jobLink = new DiJobLinkDTO();
-                            jobLink.setLinkCode(graph.getId());
-                            jobLink.setJobId(jobId);
-                            jobLink.setFromStepCode(graph.getSource().getCell());
-                            jobLink.setToStepCode(graph.getTarget().getCell());
-                            this.diJobLinkService.upsert(jobLink);
-                        }
-                    }
-                }
+    private void saveJobGraph(JobGraphVO jobGraph, Long jobId) {
+        if (jobGraph != null) {
+            List<NodeCellVO> nodes = jobGraph.getNodes();
+            List<EdgeCellVO> edges = jobGraph.getEdges();
+            //清除图中已删除的连线信息
+            this.diJobLinkService.deleteSurplusLink(jobId,
+                    edges.stream()
+                            .map(EdgeCellVO::getId)
+                            .collect(Collectors.toList()));
+            //插入新的
+            for (EdgeCellVO edge : edges) {
+                DiJobLinkDTO jobLink = new DiJobLinkDTO();
+                jobLink.setLinkCode(edge.getId());
+                jobLink.setJobId(jobId);
+                jobLink.setFromStepCode(edge.getSource());
+                jobLink.setToStepCode(edge.getTarget());
+                this.diJobLinkService.upsert(jobLink);
+            }
+            //清除图中已删除的节点信息及节点属性
+            this.diJobStepService.deleteSurplusStep(jobId,
+                    nodes.stream()
+                            .map(NodeCellVO::getId)
+                            .collect(Collectors.toList()));
+            //插入新的，更新已有的 这里不处理节点属性信息
+            for (NodeCellVO node : nodes) {
+                DiJobStepDTO jobStep = new DiJobStepDTO();
+                jobStep.setJobId(jobId);
+                jobStep.setStepCode(node.getId());
+                jobStep.setStepTitle(node.getLabel());
+                jobStep.setStepType(DictVO.toVO(DictConstants.JOB_STEP_TYPE, String.valueOf(node.getData().get("type"))));
+                jobStep.setStepName(String.valueOf(node.getData().get("name")));
+                jobStep.setPositionX(node.getX());
+                jobStep.setPositionY(node.getY());
+                this.diJobStepService.upsert(jobStep);
             }
         }
     }
@@ -343,7 +301,7 @@ public class JobController {
 
     @Logging
     @PostMapping(path = "/attr")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "修改作业属性", notes = "修改作业属性信息")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
     public ResponseEntity<ResponseVO> saveJobAttr(@RequestBody DiJobAttrVO jobAttrVO) {
@@ -365,7 +323,7 @@ public class JobController {
                 this.diJobAttrService.upsert(entry.getValue());
             }
             return new ResponseEntity<>(ResponseVO.sucess(editableJobId), HttpStatus.OK);
-        } catch (CustomException e) {
+        } catch (ScalephException e) {
             return new ResponseEntity<>(ResponseVO.error(ResponseCodeEnum.ERROR_CUSTOM.getCode(),
                     e.getMessage(), ErrorShowTypeEnum.NOTIFICATION), HttpStatus.OK);
         }
@@ -390,33 +348,20 @@ public class JobController {
         }
     }
 
-
-    @Logging
-    @GetMapping(path = "/attrType")
-    @Transactional(rollbackFor = Exception.class)
-    @ApiOperation(value = "查询步骤属性列表", notes = "查询步骤属性列表")
-    @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
-    public ResponseEntity<List<DiJobStepAttrTypeDTO>> listJobStepAttrType(@NotBlank String stepType,
-                                                                          @NotBlank String stepName) {
-        List<DiJobStepAttrTypeDTO> list =
-                this.diJobStepAttrTypeService.listByType(stepType, stepName);
-        return new ResponseEntity<>(list, HttpStatus.OK);
-    }
-
+    //todo remove this function
     @Logging
     @GetMapping(path = "/step")
     @ApiOperation(value = "查询步骤属性信息", notes = "查询步骤属性信息")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
-    public ResponseEntity<List<DiJobStepAttrDTO>> listDiJobStepAttr(@NotBlank String jobId,
-                                                                    @NotBlank String stepCode) {
-        List<DiJobStepAttrDTO> list =
-                this.diJobStepAttrService.listJobStepAttr(Long.valueOf(jobId), stepCode);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    public ResponseEntity<DiJobStepDTO> listDiJobStepAttr(@NotBlank String jobId,
+                                                          @NotBlank String stepCode) {
+        DiJobStepDTO stepInfo = this.diJobStepService.selectOne(Long.valueOf(jobId), stepCode);
+        return new ResponseEntity<>(stepInfo, HttpStatus.OK);
     }
 
     @Logging
     @PostMapping(path = "/step")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "保存步骤属性信息", notes = "保存步骤属性信息，未触发作业版本号变更")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
     public ResponseEntity<ResponseVO> saveJobStepInfo(
@@ -428,44 +373,18 @@ public class JobController {
                 Long editableJobId = prepareJobVersion(jobInfo);
                 String stepCode = stepAttrMap.get(Constants.JOB_STEP_CODE).toString();
                 String jobGraphStr = toJsonStr(stepAttrMap.get(Constants.JOB_GRAPH));
-                Map<String, List<JobGraphVO>> map = JSONUtil.toBean(jobGraphStr,
-                        new TypeReference<Map<String, List<JobGraphVO>>>() {
-                        }, false);
-                saveJobGraph(map, editableJobId);
-                if (stepAttrMap.containsKey(Constants.JOB_STEP_TITLE)
-                        && StrUtil.isNotEmpty(stepAttrMap.get(Constants.JOB_STEP_TITLE).toString())) {
-                    DiJobStepDTO step = new DiJobStepDTO();
-                    step.setJobId(editableJobId);
-                    step.setStepCode(stepCode);
-                    step.setStepTitle(stepAttrMap.get(Constants.JOB_STEP_TITLE).toString());
-                    this.diJobStepService.update(step);
-                }
-                DiJobStepDTO dto = this.diJobStepService.selectOne(editableJobId, stepCode);
-                if (dto != null) {
-                    List<DiJobStepAttrTypeDTO> attrTypeList =
-                            this.diJobStepAttrTypeService.listByType(dto.getStepType().getValue(),
-                                    dto.getStepName());
-                    for (DiJobStepAttrTypeDTO attrType : attrTypeList) {
-                        if (stepAttrMap.containsKey(attrType.getStepAttrKey())) {
-                            DiJobStepAttrDTO stepAttr = new DiJobStepAttrDTO();
-                            stepAttr.setJobId(editableJobId);
-                            stepAttr.setStepCode(stepCode);
-                            stepAttr.setStepAttrKey(attrType.getStepAttrKey());
-                            stepAttr.setStepAttrValue(
-                                    toJsonStr(stepAttrMap.get(attrType.getStepAttrKey())));
-                            this.diJobStepAttrService.upsert(stepAttr);
-                        } else {
-                            DiJobStepAttrDTO stepAttr = new DiJobStepAttrDTO();
-                            stepAttr.setJobId(editableJobId);
-                            stepAttr.setStepCode(stepCode);
-                            stepAttr.setStepAttrKey(attrType.getStepAttrKey());
-                            stepAttr.setStepAttrValue(attrType.getStepAttrDefaultValue());
-                            this.diJobStepAttrService.upsert(stepAttr);
-                        }
-                    }
-                }
+                JobGraphVO jobGraphVO = JSONUtil.toBean(jobGraphStr, JobGraphVO.class);
+                saveJobGraph(jobGraphVO, editableJobId);
+                //update step
+                DiJobStepDTO step = new DiJobStepDTO();
+                step.setJobId(editableJobId);
+                step.setStepCode(stepCode);
+                Map<String, Object> stepAttrs = (Map<String, Object>) stepAttrMap.get(Constants.JOB_STEP_ATTRS);
+                step.setStepTitle(stepAttrs.get(Constants.JOB_STEP_TITLE).toString());
+                step.setStepAttrs(stepAttrs);
+                this.diJobStepService.update(step);
                 return new ResponseEntity<>(ResponseVO.sucess(editableJobId), HttpStatus.OK);
-            } catch (CustomException e) {
+            } catch (ScalephException e) {
                 return new ResponseEntity<>(
                         ResponseVO.error(ResponseCodeEnum.ERROR_CUSTOM.getCode(),
                                 e.getMessage(), ErrorShowTypeEnum.NOTIFICATION), HttpStatus.OK);
@@ -481,10 +400,20 @@ public class JobController {
         if (obj == null) {
             return null;
         }
-        if (obj instanceof Number) {
-            return String.valueOf(obj);
+        if (Primitives.isWrapperType(obj.getClass())) {
+            return obj.toString();
+        }
+        if (obj.getClass().isPrimitive()) {
+            return obj.toString();
         }
         return JSONUtil.toJsonStr(obj);
+    }
+
+    private boolean isPrimitive(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        return Primitives.isWrapperType(obj.getClass()) || obj.getClass().isPrimitive();
     }
 
     /**
@@ -508,7 +437,7 @@ public class JobController {
 
     @Logging
     @GetMapping(path = "/publish/{jobId}")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "发布任务", notes = "发布任务")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
     public ResponseEntity<ResponseVO> publishJob(@PathVariable(value = "jobId") Long jobId) {
@@ -539,7 +468,7 @@ public class JobController {
 
     @Logging
     @PostMapping(path = "/run")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "运行任务", notes = "运行任务，提交至集群")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
     public ResponseEntity<ResponseVO> runJob(@RequestBody DiJobRunVO jobRunParam) throws Exception {
@@ -549,7 +478,7 @@ public class JobController {
 
     @Logging
     @GetMapping(path = "/stop")
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, transactionManager = DataSourceConstants.MASTER_TRANSACTION_MANAGER_FACTORY)
     @ApiOperation(value = "停止任务", notes = "停止任务,自动创建savepoint,作业可能会正常运行完后停止。任务的日志状态通过定时任务同步")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
     public ResponseEntity<ResponseVO> stopJob(@RequestParam(value = "jobId") Long jobId) throws Exception {
@@ -575,8 +504,22 @@ public class JobController {
     @GetMapping(path = "/cron/next")
     @ApiOperation(value = "查询最近5次运行时间", notes = "查询最近5次运行时间")
     @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_EDIT)")
-    public ResponseEntity<List<Date>> listNext5FireTime(@RequestParam("crontabStr") String crontabStr) throws ParseException {
-        List<Date> dates = scheduleService.listNext5FireTime(crontabStr);
+    public ResponseEntity<List<Date>> listNext5FireTime(@RequestParam("crontabStr") String crontabStr) {
+        List<Date> dates;
+        try {
+            dates = scheduleService.listNext5FireTime(crontabStr);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
         return new ResponseEntity<>(dates, HttpStatus.OK);
+    }
+
+    @Logging
+    @GetMapping(path = "/node/meta")
+    @ApiOperation(value = "查询DAG节点元信息", notes = "后端统一返回节点信息")
+    @PreAuthorize("@svs.validate(T(cn.sliew.scaleph.common.constant.PrivilegeConstants).DATADEV_JOB_SELECT)")
+    public ResponseEntity<List<DagPanelDTO>> loadNodeMeta() {
+        List<DagPanelDTO> list = this.seatunnelJobService.loadDndPanelInfo();
+        return new ResponseEntity<>(list, HttpStatus.OK);
     }
 }

@@ -135,13 +135,13 @@
         <disruptor.version>3.4.4</disruptor.version>
         <ojdbc.version>21.1.0.0</ojdbc.version>
         <mysql.version>8.0.28</mysql.version>
-        <clickhouse-jdbc.version>0.2</clickhouse-jdbc.version>
+        <clickhouse-jdbc.version>0.3.2</clickhouse-jdbc.version>
         <doris.version>5.1.26</doris.version>
         <postgresql.version>42.3.3</postgresql.version>
         <druid.version>0.22.1</druid.version>
         <calcite-druid.version>1.31.0</calcite-druid.version>
         <flink.version>1.13.6</flink.version>
-        <flinkful.version>1.13.6_1_8-SNAPSHOT</flinkful.version>
+        <flinkful.version>1.13.6_2_8-SNAPSHOT</flinkful.version>
         <okhttp.version>4.9.3</okhttp.version>
         <guava.version>31.0-jre</guava.version>
         <minio.version>8.3.8</minio.version>
@@ -255,7 +255,11 @@
                 <artifactId>scaleph-plugin-seatunnel-native-flink</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>scaleph-plugin-seatunnel-connectors</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>scaleph-core-di</artifactId>

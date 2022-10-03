@@ -18,37 +18,46 @@
 
 package cn.sliew.scaleph.plugin.seatunnel.flink;
 
-import cn.sliew.scaleph.system.dict.seatunnel.SeaTunnelEngineType;
-import cn.sliew.scaleph.system.dict.seatunnel.SeaTunnelPluginName;
-import cn.sliew.scaleph.system.dict.seatunnel.SeaTunnelPluginType;
+import cn.sliew.milky.common.util.JacksonUtil;
+import cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelEngineType;
+import cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelPluginName;
+import cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelPluginType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 
-import static cn.sliew.scaleph.system.dict.seatunnel.SeaTunnelEngineType.SEATUNNEL;
-import static cn.sliew.scaleph.system.dict.seatunnel.SeaTunnelPluginName.*;
-import static cn.sliew.scaleph.system.dict.seatunnel.SeaTunnelPluginType.*;
+import static cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelEngineType.SEATUNNEL;
+import static cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelPluginName.*;
+import static cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelPluginType.SINK;
+import static cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelPluginType.SOURCE;
+
 
 /**
  * https://github.com/apache/incubator-seatunnel/blob/dev/plugin-mapping.properties
  */
 @Getter
+@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum SeaTunnelPluginMapping {
 
     SOURCE_FAKE(SEATUNNEL, SOURCE, FAKESOURCE, "connector-fake"),
     SINK_ASSERT(SEATUNNEL, SINK, ASSERT, "connector-assert"),
     SOURCE_SOCKET(SEATUNNEL, SOURCE, SOCKET, "connector-socket"),
+    SINK_SOCKET(SEATUNNEL, SINK, SOCKET, "connector-socket"),
     SINK_CONSOLE(SEATUNNEL, SINK, CONSOLE, "connector-console"),
     SINK_EMAIL(SEATUNNEL, SINK, EMAIL, "connector-email"),
     SOURCE_HTTP(SEATUNNEL, SOURCE, HTTP, "connector-http-base"),
     SINK_HTTP(SEATUNNEL, SINK, HTTP, "connector-http-base"),
     SINK_FEISHU(SEATUNNEL, SINK, FEISHU, "connector-http-feishu"),
+    SINK_WECHAT(SEATUNNEL, SINK, WECHAT, "connector-http-wechat"),
     SINK_DINGTALK(SEATUNNEL, SINK, DINGTALK, "connector-dingtalk"),
 
     SOURCE_LOCAL_FILE(SEATUNNEL, SOURCE, LOCAL_FILE, "connector-file-local"),
     SINK_LOCAL_FILE(SEATUNNEL, SINK, LOCAL_FILE, "connector-file-local"),
+    SOURCE_FTP_FILE(SEATUNNEL, SOURCE, FTP_FILE, "connector-file-ftp"),
     SINK_FTP_FILE(SEATUNNEL, SINK, FTP_FILE, "connector-file-ftp"),
     SOURCE_HDFS_FILE(SEATUNNEL, SOURCE, HDFS_FILE, "connector-file-hadoop"),
     SINK_HDFS_FILE(SEATUNNEL, SINK, HDFS_FILE, "connector-file-hadoop"),
     SOURCE_OSS_FILE(SEATUNNEL, SOURCE, OSS_FILE, "connector-file-oss"),
+    SINK_OSS_FILE(SEATUNNEL, SINK, OSS_FILE, "connector-file-oss"),
 
     SOURCE_KAFKA(SEATUNNEL, SOURCE, KAFKA, "connector-kafka"),
     SINK_KAFKA(SEATUNNEL, SINK, KAFKA, "connector-kafka"),
@@ -66,6 +75,7 @@ public enum SeaTunnelPluginMapping {
     SINK_CLICKHOUSE(SEATUNNEL, SINK, CLICKHOUSE, "connector-clickhouse"),
     SINK_CLICKHOUSE_FILE(SEATUNNEL, SINK, CLICKHOUSE_FILE, "connector-clickhouse"),
     SOURCE_HUDI(SEATUNNEL, SOURCE, HUDI, "connector-hudi"),
+    SOURCE_ICEBERG(SEATUNNEL, SOURCE, ICEBERG, "connector-iceberg"),
     SOURCE_KUDU(SEATUNNEL, SOURCE, KUDU, "connector-kudu"),
     SINK_KUDU(SEATUNNEL, SINK, KUDU, "connector-kudu"),
     SOURCE_IOTDB(SEATUNNEL, SOURCE, IOTDB, "connector-iotdb"),
@@ -83,5 +93,9 @@ public enum SeaTunnelPluginMapping {
         this.pluginType = pluginType;
         this.pluginName = pluginName;
         this.pluginJarPrefix = pluginJarPrefix;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(JacksonUtil.toJsonString(SOURCE_FAKE));
     }
 }

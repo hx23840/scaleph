@@ -18,11 +18,11 @@
 
 package cn.sliew.scaleph.plugin.seatunnel.flink;
 
+import cn.sliew.scaleph.common.dict.seatunnel.SeaTunnelPluginType;
 import cn.sliew.scaleph.plugin.framework.core.PluginInfo;
 import cn.sliew.scaleph.plugin.framework.core.PluginSPILoader;
 import cn.sliew.scaleph.plugin.framework.property.PropertyDescriptor;
 import cn.sliew.scaleph.plugin.seatunnel.flink.env.*;
-import cn.sliew.scaleph.system.dict.seatunnel.SeaTunnelPluginType;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -57,8 +57,7 @@ public class SeaTunnelConnectorManager {
                 .collect(Collectors.toSet());
     }
 
-    public SeaTunnelConnectorPlugin getConnector(String name) {
-        PluginInfo pluginInfo = new PluginInfo(name, null, null, null);
+    public SeaTunnelConnectorPlugin getConnector(PluginInfo pluginInfo) {
         final Optional<SeaTunnelConnectorPlugin> optional = pluginPluginSPILoader.getPlugin(pluginInfo);
         return optional.orElseThrow(() -> new IllegalStateException("unknown plugin info for " + pluginInfo));
     }

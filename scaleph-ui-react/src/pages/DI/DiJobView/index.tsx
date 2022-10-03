@@ -1,8 +1,8 @@
 import { Dict, TreeNode } from '@/app.d';
 import { DICT_TYPE, PRIVILEGE_CODE, WORKSPACE_CONF } from '@/constant';
-import { listDictDataByType } from '@/services/admin/dictData.service';
-import { deleteDir, listProjectDir } from '@/services/project/directory.service';
-import { deleteJobBatch, deleteJobRow, listJobByProject } from '@/services/project/job.service';
+import { DictDataService } from '@/services/admin/dictData.service';
+import { DirectoryService } from '@/services/project/directory.service';
+import { JobService } from '@/services/project/job.service';
 import { DiDirectory, DiDirectoryTreeNode, DiJob } from '@/services/project/typings';
 import {
   DeleteOutlined,
@@ -34,6 +34,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useAccess, useIntl } from 'umi';
 import DiJobFlow from '../DiJobFlow';
+import CrontabSetting from './components/CrontabSetting';
 import DiJobForm from './components/DiJobForm';
 import DirectoryForm from './components/DirectoryForm';
 import styles from './index.less';
@@ -66,6 +67,10 @@ const DiJobView: React.FC = () => {
     data: {},
   });
   const [jobFormData, setJobFormData] = useState<{ visible: boolean; data: DiJob }>({
+    visible: false,
+    data: {},
+  });
+  const [crontabFormData, setCrontabFormData] = useState<{ visible: boolean; data: DiJob }>({
     visible: false,
     data: {},
   });
@@ -257,7 +262,7 @@ const DiJobView: React.FC = () => {
                   type="link"
                   icon={<SettingOutlined />}
                   onClick={() => {
-                    alert('setting crontab');
+                    setCrontabFormData({ visible: true, data: record });
                   }}
                 ></Button>
               </Tooltip>
@@ -278,7 +283,7 @@ const DiJobView: React.FC = () => {
                       okButtonProps: { danger: true },
                       cancelText: intl.formatMessage({ id: 'app.common.operate.cancel.label' }),
                       onOk() {
-                        deleteJobRow(record).then((d) => {
+                        JobService.deleteJobRow(record).then((d) => {
                           if (d.success) {
                             message.success(
                               intl.formatMessage({ id: 'app.common.operate.delete.success' }),
@@ -298,17 +303,17 @@ const DiJobView: React.FC = () => {
     },
   ];
   useEffect(() => {
-    listDictDataByType(DICT_TYPE.jobType).then((d) => {
+    DictDataService.listDictDataByType(DICT_TYPE.jobType).then((d) => {
       setJobTypeList(d);
     });
-    listDictDataByType(DICT_TYPE.runtimeState).then((d) => {
+    DictDataService.listDictDataByType(DICT_TYPE.runtimeState).then((d) => {
       setRuntimeStateList(d);
     });
     refreshDirList();
   }, []);
 
   const refreshDirList = () => {
-    listProjectDir(projectId).then((d) => {
+    DirectoryService.listProjectDir(projectId).then((d) => {
       setDirList(buildTree(d));
     });
   };
@@ -499,7 +504,7 @@ const DiJobView: React.FC = () => {
                                       id: 'app.common.operate.cancel.label',
                                     }),
                                     onOk() {
-                                      deleteDir(node.origin).then((d) => {
+                                      DirectoryService.deleteDir(node.origin).then((d) => {
                                         if (d.success) {
                                           message.success(
                                             intl.formatMessage({
@@ -538,7 +543,7 @@ const DiJobView: React.FC = () => {
             options={false}
             columns={tableColumns}
             request={(params, sorter, filter) => {
-              return listJobByProject({
+              return JobService.listJobByProject({
                 ...params,
                 projectId: projectId,
                 directoryId: selectDir as string,
@@ -614,7 +619,7 @@ const DiJobView: React.FC = () => {
                         okButtonProps: { danger: true },
                         cancelText: intl.formatMessage({ id: 'app.common.operate.cancel.label' }),
                         onOk() {
-                          deleteJobBatch(selectedRows).then((d) => {
+                          JobService.deleteJobBatch(selectedRows).then((d) => {
                             if (d.success) {
                               message.success(
                                 intl.formatMessage({ id: 'app.common.operate.delete.success' }),
@@ -680,13 +685,26 @@ const DiJobView: React.FC = () => {
             onCancel={() => {
               setJobFlowData({ visible: false, data: {} });
             }}
-            onVisibleChange={(visiable) => {
+            onVisibleChange={(visible) => {
               setJobFlowData({ visible: false, data: {} });
               actionRef.current?.reload();
             }}
             data={jobFlowData.data}
-            meta={{ flowId: 'flow_' + jobFlowData.data.jobCode }}
+            meta={{ flowId: 'flow_' + jobFlowData.data.jobCode, origin: jobFlowData.data }}
           ></DiJobFlow>
+        )}
+        {crontabFormData.visible && (
+          <CrontabSetting
+            visible={crontabFormData.visible}
+            onCancel={() => {
+              setCrontabFormData({ visible: false, data: {} });
+            }}
+            onVisibleChange={(visible) => {
+              setCrontabFormData({ visible: false, data: {} });
+              actionRef.current?.reload();
+            }}
+            data={crontabFormData.data}
+          ></CrontabSetting>
         )}
       </Row>
     </>

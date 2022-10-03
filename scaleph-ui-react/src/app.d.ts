@@ -79,8 +79,9 @@ export type TablePageResponse<T> = {
 export type ModalFormProps<T> = {
   data: T;
   visible: boolean;
-  onVisibleChange: (visible: boolean) => void;
+  onVisibleChange?: (visible: boolean) => void;
   onCancel: () => void;
+  onOK?: () => void;
 };
 
 export type TreeNode = {

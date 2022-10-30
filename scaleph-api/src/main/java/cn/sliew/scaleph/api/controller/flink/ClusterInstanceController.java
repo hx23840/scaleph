@@ -19,12 +19,13 @@
 package cn.sliew.scaleph.api.controller.flink;
 
 import cn.sliew.scaleph.api.annotation.Logging;
-import cn.sliew.scaleph.system.vo.ResponseVO;
 import cn.sliew.scaleph.engine.flink.service.FlinkClusterInstanceService;
 import cn.sliew.scaleph.engine.flink.service.FlinkService;
+import cn.sliew.scaleph.engine.flink.service.FlinkYarnService;
 import cn.sliew.scaleph.engine.flink.service.dto.FlinkClusterInstanceDTO;
 import cn.sliew.scaleph.engine.flink.service.param.FlinkClusterInstanceListParam;
 import cn.sliew.scaleph.engine.flink.service.param.FlinkSessionClusterAddParam;
+import cn.sliew.scaleph.system.vo.ResponseVO;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -47,6 +48,8 @@ public class ClusterInstanceController {
     private FlinkClusterInstanceService flinkClusterInstanceService;
     @Autowired
     private FlinkService flinkService;
+    @Autowired
+    private FlinkYarnService flinkYarnService;
 
     @Logging
     @GetMapping

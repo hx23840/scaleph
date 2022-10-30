@@ -1,6 +1,11 @@
-import { PageResponse, ResponseBody } from '@/app.d';
-import { FlinkClusterConfig, FlinkClusterConfigParam } from '@/services/dev/typings';
-import { request } from '@@/exports';
+import {PageResponse, ResponseBody} from '@/app.d';
+import {
+  FlinkClusterConfig,
+  FlinkClusterConfigAddParam,
+  FlinkClusterConfigParam,
+  KubernetesOptions
+} from '@/services/dev/typings';
+import {request} from '@@/exports';
 
 export const FlinkClusterConfigService = {
   url: '/api/flink/cluster-config',
@@ -26,10 +31,24 @@ export const FlinkClusterConfigService = {
     });
   },
 
-  add: async (row: FlinkClusterConfig) => {
-    return request<ResponseBody<any>>(`${FlinkClusterConfigService.url}`, {
+  add: async (param: FlinkClusterConfigAddParam) => {
+    return request<ResponseBody<FlinkClusterConfig>>(`${FlinkClusterConfigService.url}`, {
       method: 'PUT',
-      data: row,
+      data: param,
+    });
+  },
+
+  updateKubernetesOptions: async (id: number | undefined, param: KubernetesOptions) => {
+    return request<ResponseBody<any>>(`${FlinkClusterConfigService.url}/` + id + '/kubernetes', {
+      method: 'POST',
+      data: param,
+    });
+  },
+
+  updateConfigOptions: async (id: number | undefined, param: Map<String, any>) => {
+    return request<ResponseBody<any>>(`${FlinkClusterConfigService.url}/` + id + '/flink', {
+      method: 'POST',
+      data: param,
     });
   },
 
@@ -52,6 +71,34 @@ export const FlinkClusterConfigService = {
       method: 'DELETE',
       data: params,
     });
+  },
+
+  formatArgs: (values: Record<string, any>) => {
+    const jobConfig = new Map<string, any>();
+    values.args?.forEach(function (item: Record<string, any>) {
+      jobConfig[item.parameter] = item.value;
+    });
+    return jobConfig
+  },
+
+  parseArgs: (jobConfig: { [key: string]: any }) => {
+    const args: Array<any> = [];
+    jobConfig.forEach((value: any, key: string) => {
+      args.push({parameter: key, value: value});
+    });
+    return args;
+  },
+
+  formatJars: (values: Record<string, any>) => {
+    return values.jars?.map((data: Record<string, any>) => data.jar)
+  },
+
+  parseJars: (jars: Array<number>) => {
+    const result: Array<any> = []
+    jars.forEach((jarId) => {
+      result.push({jar: jarId})
+    })
+    return result
   },
 
   getData: (value: Record<string, any>) => {
@@ -192,7 +239,7 @@ export const FlinkClusterConfigService = {
 
     const options: Array<any> = [];
     configOptions.forEach((value: any, key: string) => {
-      options.push({ key: key, value: value });
+      options.push({key: key, value: value});
     });
     data['options'] = options;
 

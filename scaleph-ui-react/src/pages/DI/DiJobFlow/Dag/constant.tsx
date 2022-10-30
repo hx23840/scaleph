@@ -28,9 +28,21 @@ export namespace CustomCommands {
     category: XFlowGraphCommands.GRAPH_COPY.category,
   };
 
+  export const GRAPH_PREVIEW: IGraphCommand = {
+    id: 'xflow:graph-preview',
+    label: 'graph-preview',
+    category: XFlowGraphCommands.GRAPH_COPY.category,
+  };
+
   export const GRAPH_PUBLISH: IGraphCommand = {
     id: 'xflow:graph-publish',
     label: 'publish',
+    category: XFlowGraphCommands.GRAPH_COPY.category,
+  };
+
+  export const GRAPH_SUBMIT: IGraphCommand = {
+    id: 'xflow:graph-submit',
+    label: 'graph-submit',
     category: XFlowGraphCommands.GRAPH_COPY.category,
   };
 }
@@ -84,10 +96,37 @@ export const STEP_ATTR_TYPE = {
   timestampColumn: 'timestamp_column',
   timestampFormat: 'timestamp_format',
   timestampMissingValue: 'timestamp_missing_value',
-  rowNum: 'row_num',
   host: 'host',
   port: 'port',
 };
+
+export const SchemaParams = {
+  schema: 'schema',
+  fields: 'fields',
+  field: 'field',
+  type: 'type',
+}
+
+export const FakeParams = {
+  rowNum: 'row_num',
+}
+
+export const JdbcParams = {
+  dataSourceType: 'dataSourceType',
+  dataSource: 'dataSource',
+  connectionCheckTimeoutSec: 'connection_check_timeout_sec',
+  query: 'query',
+  partitionColumn: 'partition_column',
+  partitionLowerBound: 'partition_lower_bound',
+  partitionUpperBound: 'partition_upper_bound',
+  batchSize: 'batch_size',
+  batchIntervalMs: 'batch_interval_ms',
+  maxRetries: 'max_retries',
+  isExactlyOnce: 'is_exactly_once',
+  xaDataSourceClassName: 'xa_data_source_class_name',
+  maxCommitAttempts: 'max_commit_attempts',
+  transactionTimeoutSec: 'transaction_timeout_sec'
+}
 
 export const BaseFileParams = {
   path: 'path',
@@ -124,38 +163,46 @@ export const OSSFileParams = {
   accessSecret: 'access_secret',
 };
 
-export const BaseHttpParams = {
-  url: 'url',
-  headers: 'headers',
-  params: 'params',
-  retry: 'retry',
-  retryBackoffMultiplierMs: 'retry_backoff_multiplier_ms',
-  retryBackoffMaxMs: 'retry_backoff_max_ms'
-}
-
 export const HttpParams = {
   method: 'method',
+  url: 'url',
+  headerArray: 'headerArray',
+  header: 'header',
+  headerValue: 'headerValue',
+  paramArray: 'paramArray',
+  param: 'param',
+  paramValue: 'paramValue',
   body: 'body',
   format: 'format',
   schema: 'schema',
-  pollIntervalMs: 'poll_interval_ms'
-}
+  pollIntervalMs: 'poll_interval_ms',
+  retry: 'retry',
+  retryBackoffMultiplierMs: 'retry_backoff_multiplier_ms',
+  retryBackoffMaxMs: 'retry_backoff_max_ms',
+};
 
 export const WeChatParams = {
   url: 'url',
+  mentionedArray: 'mentionedArray',
   mentionedList: 'mentioned_list',
-  mentionedMobileList: 'mentioned_mobile_list'
-}
+  userId: 'userId',
+  mentionedMobileArray: 'mentionedMobileArray',
+  mentionedMobileList: 'mentioned_mobile_list',
+  mobile: 'mobile',
+};
 
 export const FeishuParams = {
   url: 'url',
-  headers: 'headers'
-}
+  headerArray: 'headerArray',
+  headers: 'headers',
+  header: 'header',
+  headerValue: 'headerValue'
+};
 
 export const DingTalkParams = {
   url: 'url',
-  secret: 'secret'
-}
+  secret: 'secret',
+};
 
 export const EmailParams = {
   emailHost: 'email_host',
@@ -165,8 +212,8 @@ export const EmailParams = {
   emailAuthorizationCode: 'email_authorization_code',
   emailToAddress: 'email_to_address',
   emailMessageHeadline: 'email_message_headline',
-  emailMessageContent: 'email_message_content'
-}
+  emailMessageContent: 'email_message_content',
+};
 
 export const HudiParams = {
   tablePath: 'table.path',
@@ -192,8 +239,7 @@ export const IcebergParams = {
   startSnapshotTimestamp: 'start_snapshot_timestamp',
   useSnapshotTimestamp: 'use_snapshot_timestamp',
   streamScanStrategy: 'stream_scan_strategy',
-}
-
+};
 
 export const ClickHouseParams = {
   dataSourceType: 'ClickHouse',
@@ -201,8 +247,8 @@ export const ClickHouseParams = {
   shardingKey: 'sharding_key',
   clickhouseConf: 'clickhouse_conf',
   sql: 'sql',
-  database: 'database'
-}
+  database: 'database',
+};
 
 export const HiveParams = {
   tableName: 'table_name',
@@ -210,6 +256,22 @@ export const HiveParams = {
   partitionBy: 'partition_by',
   sinkColumns: 'sink_columns',
   isEnableTransaction: 'is_enable_transaction',
-  saveMode: 'save_mode'
+  saveMode: 'save_mode',
+};
+
+export const KuduParams = {
+  kuduMaster: 'kudu_master',
+  kuduTable: 'kudu_table',
+  columnsList: 'columnsList',
+  saveMode: 'save_mode',
+};
+
+export const KafkaParams = {
+  topic: 'topic',
+  pattern: 'pattern',
+  kafkaConf: 'kafkaConf',
+  consumerGroup: 'consumer.group',
+  commit_on_checkpoint: 'commit_on_checkpoint',
+  bootstrapServers: 'bootstrap.servers'
 
 };

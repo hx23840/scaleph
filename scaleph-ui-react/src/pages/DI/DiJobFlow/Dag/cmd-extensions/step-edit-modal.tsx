@@ -42,7 +42,9 @@ import SinkDingTalkStepForm from "@/pages/DI/DiJobFlow/Dag/steps/sink/sink-dingt
 import SinkEmailStepForm from "@/pages/DI/DiJobFlow/Dag/steps/sink/sink-email-step";
 import SourceHiveStepForm from '../steps/source/source-hive-step';
 import SinkHiveStepForm from '../steps/sink/sink-hive-step';
-
+import SourceKuduStepForm from '../steps/source/source-kudu-step';
+import SinkKuduStepForm from '../steps/sink/sink-kudu-step';
+import SourceKafkaStepForm from '../steps/source/source-kafka-step';
 
 const {inject, injectable, postConstruct} = ManaSyringe;
 type ICommand = ICommandHandler<NsEditNode.IArgs, NsEditNode.IResult, NsEditNode.ICmdHooks>;
@@ -227,7 +229,7 @@ export class EditNodeCommand implements ICommand {
       return (<SourceHudiStepForm visible data={data} onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
     } else if (type === 'source' && name === 'Iceberg') {
       return (<SourceIcebergStepForm visible data={data} onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
-    } else if  (type === 'source' && name === 'Fake') {
+    } else if  (type === 'source' && name === 'FakeSource') {
       return (<SourceFakeStepForm visible data={data} onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
     } else if(type==='sink' && name ==='Console'){
       return (<SinkConsoleStepForm visible data={data}  onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
@@ -255,7 +257,13 @@ export class EditNodeCommand implements ICommand {
       return (<SourceHiveStepForm visible data={data}  onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
     } else if(type === 'sink' && name === 'Hive'){
       return (<SinkHiveStepForm visible data={data} onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
-    } else {
+    } else if(type === 'source' && name === 'Kudu'){
+      return (<SourceKuduStepForm visible data={data} onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
+    } else if(type === 'sink' && name === 'Kudu'){
+      return (<SinkKuduStepForm visible data={data} onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
+    } else if(type === 'source' && name === 'Kafka'){
+      return (<SourceKafkaStepForm visible data={data} onCancel={() => this.onCancel(container)} onOK={() => this.onOk(data, container)}/>);
+    }else {
       return <></>;
     }
   };

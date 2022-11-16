@@ -33,33 +33,16 @@ export type DiProjectParam = QueryParam & {
   projectName?: string;
 };
 
-export type DiDirectory = {
-  id?: number;
-  projectId?: string;
-  directoryName?: string;
-  pid?: number;
-  fullPath?: string;
-};
-
-export type DiDirectoryTreeNode = {
-  id: number;
-  pid: number;
-  directoryName: string;
-  children: DiDirectoryTreeNode[];
-};
 
 export type DiJob = {
   id?: number;
   projectId?: number;
-  jobCode?: string;
+  jobCode?: number;
   jobName?: string;
-  directory?: DiDirectory;
   jobType?: Dict;
   jobStatus?: Dict;
-  runtimeState?: Dict;
   jobVersion?: number;
   remark?: string;
-  jobCrontab?: string;
   createTime?: Date;
   updateTime?: Date;
   jobAttrList?: DiJobAttr[];
@@ -70,17 +53,14 @@ export type DiJob = {
 
 export type DiJobParam = QueryParam & {
   projectId: string;
-  jobCode?: string;
+  jobCode?: number;
   jobName?: string;
   jobType?: string;
-  runtimeState?: string;
-  directoryId?: string;
 };
 
 export type DiJobAddParam = {
   projectId?: number;
   jobName: string;
-  directoryId: number;
   jobType?: string;
   remark?: string;
 };

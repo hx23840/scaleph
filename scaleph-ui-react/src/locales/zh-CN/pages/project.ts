@@ -1,11 +1,14 @@
 export default {
   'pages.project': '项目',
+  'pages.project.create': '创建项目',
+  'pages.project.list': '项目列表',
   'pages.project.projectCode': '项目编码',
   'pages.project.projectName': '项目名称',
   'pages.project.remark': '备注',
   'pages.project.createTime': '创建时间',
   'pages.project.updateTime': '更新时间',
   'pages.project.open': '进入项目',
+  'pages.project.projectCode.placeholder': '请输入项目编码',
   'pages.project.di.dataSource': '数据源',
   'pages.project.di.dataSource.dataSourceName': '数据源名称',
   'pages.project.di.dataSource.dataSourceType': '数据源类型',
@@ -33,11 +36,12 @@ export default {
   'pages.project.di.dataSource.dataSourceType.bigdata': '大数据',
   'pages.project.di.dataSource.dataSourceType.mq': '消息队列',
   'pages.project.di.dataSource.dataSourceType.other': '其他',
-  'pages.project.di.dataSource.clickhosue.host.tooltip': 'ClickHouse cluster address,allowing multiple hosts to be specified. Such as "host1:8123,host2:8123"',
+  'pages.project.di.dataSource.clickhosue.host.tooltip':
+    'ClickHouse cluster address,allowing multiple hosts to be specified. Such as "host1:8123,host2:8123"',
   // 'pages.project.di.batch':''
   'pages.project.dir': '目录',
   'pages.project.dir.directoryName': '目录名称',
-  'pages.project.di.job': '集成作业',
+  'pages.project.di.job': 'SeaTunnel',
   'pages.project.di.jobCode': '作业编码',
   'pages.project.di.jobName': '作业名称',
   'pages.project.di.jobType': '作业类型',
@@ -98,6 +102,7 @@ export default {
   'pages.project.di.step.stepTitle': '步骤标题',
   'pages.project.di.step.x': 'x坐标',
   'pages.project.di.step.y': 'y坐标',
+
   'pages.project.di.step.dataSourceType': '数据源类型',
   'pages.project.di.step.dataSource': '数据源',
 
@@ -114,8 +119,6 @@ export default {
   'pages.project.di.step.schema.fields.type': 'type',
 
   // jdbc
-  'pages.project.di.step.jdbc.dataSourceType': '数据源类型',
-  'pages.project.di.step.jdbc.dataSource': '数据源',
   'pages.project.di.step.jdbc.connectionCheckTimeoutSec': '数据源连接超时（秒）',
   'pages.project.di.step.jdbc.partitionColumn': '分区字段',
   'pages.project.di.step.jdbc.partitionColumn.tooltip': '只支持数值类型字段作为分区字段',
@@ -128,7 +131,8 @@ export default {
   'pages.project.di.step.jdbc.preview': '预览结果',
   'pages.project.di.step.jdbc.batchSize': '批次数量',
   'pages.project.di.step.jdbc.batchIntervalMs': '批次间隔（毫秒）',
-  'pages.project.di.step.jdbc.batch.tooltip': 'record buffer 到达批次数量或时间到批次间隔（毫秒）时，会提交 record buffer',
+  'pages.project.di.step.jdbc.batch.tooltip':
+    'record buffer 到达批次数量或时间到批次间隔（毫秒）时，会提交 record buffer',
   'pages.project.di.step.jdbc.maxRetries': '批次重试次数',
   'pages.project.di.step.jdbc.isExactlyOnce': '启用 Exactly once 语义',
   'pages.project.di.step.jdbc.isExactlyOnce.tooltip': '使用 XA 事务保证 Exactly once 语义',
@@ -144,6 +148,11 @@ export default {
   'pages.project.di.step.baseFile.path': 'Path',
   'pages.project.di.step.baseFile.type': 'File Type',
   'pages.project.di.step.baseFile.schema': 'Schema',
+  'pages.project.di.step.baseFile.delimiter': 'Field Delimiter',
+  'pages.project.di.step.baseFile.parsePartitionFromPath': 'Enable Parse Partition From Path',
+  'pages.project.di.step.baseFile.dateFormat': 'Date Format',
+  'pages.project.di.step.baseFile.timeFormat': 'Time Format',
+  'pages.project.di.step.baseFile.datetimeFormat': 'Datetime Format',
   'pages.project.di.step.baseFile.fileNameExpression': 'FileName Expression',
   'pages.project.di.step.baseFile.fileFormat': 'File Format',
   'pages.project.di.step.baseFile.filenameTimeFormat': 'FileName Time Format',
@@ -154,17 +163,10 @@ export default {
   'pages.project.di.step.baseFile.isPartitionFieldWriteInFile': 'Write Partition Field to File',
   'pages.project.di.step.baseFile.sinkColumns': 'Sink Columns',
   'pages.project.di.step.baseFile.isEnableTransaction': 'Enable Transaction',
-  'pages.project.di.step.baseFile.saveMode': 'Save Mode',
 
   // hdfs file
   'pages.project.di.step.hdfsFile.defaultFS': 'fs.defaultFS',
   'pages.project.di.step.hdfsFile.defaultFS.tooltip': '格式:hdfs://namenode001',
-  'pages.project.di.step.hdfsFile.json.tooltip':
-    '{\n' +
-    '        code = int\n' +
-    '        data = string\n' +
-    '        success = boolean\n' +
-    '    }',
 
   // ftp file
   'pages.project.di.step.ftpFile.host': 'Host',
@@ -178,6 +180,11 @@ export default {
   'pages.project.di.step.ossFile.accessKey': 'Access Key',
   'pages.project.di.step.ossFile.accessSecret': 'Access Secret',
 
+  // s3
+  'pages.project.di.step.s3.bucket': 'Bucket',
+  'pages.project.di.step.s3.accessKey': 'Access Key',
+  'pages.project.di.step.s3.accessSecret': 'Access Secret',
+
   // http
   'pages.project.di.step.http.method': 'Method',
   'pages.project.di.step.http.url': 'URL',
@@ -189,10 +196,11 @@ export default {
   'pages.project.di.step.http.value': 'value',
   'pages.project.di.step.http.format': 'Format',
   'pages.project.di.step.http.schema': 'Schema',
-  'pages.project.di.step.http.pollIntervalMs': 'Poll Interval(millis)',
+  'pages.project.di.step.http.pollIntervalMs': 'Poll Interval(milliseconds)',
   'pages.project.di.step.http.retry': 'Retry',
-  'pages.project.di.step.http.retryBackoffMultiplierMs': 'Retry-Backoff times(millis) Multiplier',
-  'pages.project.di.step.http.retryBackoffMaxMs': 'Maximum Retry-Backoff times(millis)',
+  'pages.project.di.step.http.retryBackoffMultiplierMs':
+    'Retry-Backoff times(milliseconds) Multiplier',
+  'pages.project.di.step.http.retryBackoffMaxMs': 'Maximum Retry-Backoff times(milliseconds)',
 
   // wechat
   'pages.project.di.step.wechat.url': 'WeChat Robot URL',
@@ -253,26 +261,28 @@ export default {
   'pages.project.di.step.clickhosue.fields.tooltip': 'For example, : id,name',
   'pages.project.di.step.clickhosue.splitMode': '是否分片',
   'pages.project.di.step.clickhosue.shardingKey': 'shardingKey 分片字段',
-  'pages.project.di.step.clickhosue.splitMode.tooltip': 'Split mode when table is distributed engine,This mode only support clickhouse table which engine is \'Distributed\'',
+  'pages.project.di.step.clickhosue.splitMode.tooltip':
+    "Split mode when table is distributed engine,This mode only support clickhouse table which engine is 'Distributed'",
   'pages.project.di.step.clickhosue.clickhouseConf': 'clickhouse jdbc参数',
-  'pages.project.di.step.clickhosue.clickhouseConf.tooltip': ' For example, the way to specify socket_timeout is: clickhouse.socket_timeout = 50000',
+  'pages.project.di.step.clickhosue.clickhouseConf.tooltip':
+    ' For example, the way to specify socket_timeout is: clickhouse.socket_timeout = 50000',
   'pages.project.di.step.clickhosue.sql': 'SQL',
   'pages.project.di.step.clickhosue.database': '数据库',
 
   // hive
   'pages.project.di.step.hive.tableName': 'Hive Table Name',
-  'pages.project.di.step.hive.metastoreUri': 'Hive metastore uri',
+  'pages.project.di.step.hive.metastoreUri': 'Hive Metastore URI',
   'pages.project.di.step.hive.metastoreUri.tooltip': 'example : thrift://ctyun7:9083',
-  'pages.project.di.step.hive.schema.tooltip':
-    'schema格式: {\n' + '          name = "string"\n' + '          age = "int"\n' + '        }',
   'pages.project.di.step.hive.partitionBy': 'Partition',
   'pages.project.di.step.hive.partitionBy.tooltip': 'example : "test_par1", "test_par2"',
   'pages.project.di.step.hive.sinkColumns': 'Write Columns',
-  'pages.project.di.step.hive.sinkColumns.tooltip': 'example : "test_tinyint", "test_smallint", "test_int", "test_bigint", "test_boolean", "test_float"',
-  'pages.project.di.step.hive.isEnableTransaction': 'isEnableTransaction',
+  'pages.project.di.step.hive.sinkColumns.tooltip':
+    'example : "test_tinyint", "test_smallint", "test_int", "test_bigint", "test_boolean", "test_float"',
+  'pages.project.di.step.hive.isEnableTransaction': 'Enable Transaction',
   'pages.project.di.step.hive.isEnableTransaction.tooltip': 'Only support true now',
   'pages.project.di.step.hive.saveMode': 'saveMode',
-  'pages.project.di.step.hive.saveMode.tooltip': 'Streaming Job not support overwrite. Storage mode, we need support overwrite and append. append is now supported.',
+  'pages.project.di.step.hive.saveMode.tooltip':
+    'Streaming Job not support overwrite. Storage mode, we need support overwrite and append. append is now supported.',
 
   // kudu
   'pages.project.di.step.kudu.master': 'Master',
@@ -284,11 +294,125 @@ export default {
   'pages.project.di.step.kafka.topic': 'Topic',
   'pages.project.di.step.kafka.pattern': 'pattern',
   'pages.project.di.step.kafka.conf': 'kafkaConf',
-  'pages.project.di.step.kafka.conf.tooltip':'The way to specify parameters is to add the prefix kafka. to the original parameter name. For example, the way to specify auto.offset.reset is: kafka.auto.offset.reset = latest',
-  'pages.project.di.step.kafka.pattern.tooltip': 'If pattern is set to true,the regular expression for a pattern of topic names to read from. All topics in clients with names that match the specified regular expression will be subscribed by the consumer.',
+  'pages.project.di.step.kafka.conf.tooltip':
+    'The way to specify parameters is to add the prefix kafka. to the original parameter name. For example, the way to specify auto.offset.reset is: kafka.auto.offset.reset = latest',
+  'pages.project.di.step.kafka.pattern.tooltip':
+    'If pattern is set to true,the regular expression for a pattern of topic names to read from. All topics in clients with names that match the specified regular expression will be subscribed by the consumer.',
   'pages.project.di.step.kafka.consumerGroup': 'consumerGroup',
-  'pages.project.di.step.kafka.consumerGroup.tooltip': 'Kafka consumer group id, used to distinguish different consumer groups',
+  'pages.project.di.step.kafka.consumerGroup.tooltip':
+    'Kafka consumer group id, used to distinguish different consumer groups',
   'pages.project.di.step.kafka.commit_on_checkpoint': 'commit_on_checkpoint',
-  'pages.project.di.step.kafka.commit_on_checkpoint.tooltip': 'If true the consumer\'s offset will be periodically committed in the background.\n'
+  'pages.project.di.step.kafka.commit_on_checkpoint.tooltip':
+    "If true the consumer's offset will be periodically committed in the background.\n",
 
+  // iotdb
+  'pages.project.di.step.iotdb.nodeUrls': 'Node URLs',
+  'pages.project.di.step.iotdb.username': 'Username',
+  'pages.project.di.step.iotdb.password': 'Password',
+  'pages.project.di.step.iotdb.sql': 'SQL',
+  'pages.project.di.step.iotdb.fields': 'Fields',
+  'pages.project.di.step.iotdb.fetchSize': 'Fetch Size',
+  'pages.project.di.step.iotdb.thriftDefaultBufferSize': 'Default Thrift Buffer Size',
+  'pages.project.di.step.iotdb.thriftMaxFrameSize': 'Max Thrift Max Size',
+  'pages.project.di.step.iotdb.enableCacheLeader': 'Enable Cache Leader',
+  'pages.project.di.step.iotdb.version': 'Version',
+  'pages.project.di.step.iotdb.numPartitions': 'Partition Num',
+  'pages.project.di.step.iotdb.lowerBound': 'Partition Lower Bound',
+  'pages.project.di.step.iotdb.upperBound': 'Partition Upper Bound',
+  'pages.project.di.step.iotdb.batchSize': 'Batch Size',
+  'pages.project.di.step.iotdb.batchIntervalMs': 'Batch Interval(milliseconds)',
+  'pages.project.di.step.iotdb.maxRetries': 'Retry Num',
+  'pages.project.di.step.iotdb.retryBackoffMultiplierMs': 'Retry Backoff Multiplier(milliseconds)',
+  'pages.project.di.step.iotdb.maxRetryBackoffMs': 'Retry Max Backoff(milliseconds)',
+  'pages.project.di.step.iotdb.zoneId': 'Time Zone ID',
+  'pages.project.di.step.iotdb.enableRpcCompression': 'Enable RPC Compression',
+  'pages.project.di.step.iotdb.connectionTimeoutInMs': 'Connection Timeout(milliseconds)',
+
+  // mongodb
+  'pages.project.di.step.mongodb.uri': 'URI',
+  'pages.project.di.step.mongodb.database': 'Database',
+  'pages.project.di.step.mongodb.collection': 'Collection',
+
+  // redis
+  'pages.project.di.step.redis.host': 'Host',
+  'pages.project.di.step.redis.port': 'Port',
+  'pages.project.di.step.redis.auth': 'Authentication Password',
+  'pages.project.di.step.redis.keys': 'Keys Pattern',
+  'pages.project.di.step.redis.dataType': 'Data Type',
+  'pages.project.di.step.redis.format': 'Format',
+  'pages.project.di.step.redis.key': 'Key',
+
+  // pulsar
+  'pages.project.di.step.pulsar.clientServiceUrl': 'Client Service URL',
+  'pages.project.di.step.pulsar.adminServiceUrl': 'Admin Service URL',
+  'pages.project.di.step.pulsar.authPluginClass': 'Auth Plugin Class',
+  'pages.project.di.step.pulsar.authParams': 'Auth Params',
+  'pages.project.di.step.pulsar.subscriptionName': 'Subscription Name',
+  'pages.project.di.step.pulsar.topic': 'Topic',
+  'pages.project.di.step.pulsar.topic.tooltip':
+    'Multiple Topics separated by semicolon like: topic-1;topic-2',
+  'pages.project.di.step.pulsar.topicPattern': 'Topic Pattern',
+  'pages.project.di.step.pulsar.topicDiscoveryInterval': 'Topic Discovery Interval(milliseconds)',
+  'pages.project.di.step.pulsar.topicDiscoveryInterval.tooltip': 'Non-Positive value means disable',
+  'pages.project.di.step.pulsar.pollTimeout': 'Poll Timeout(milliseconds)',
+  'pages.project.di.step.pulsar.pollInterval': 'Poll Interval(milliseconds)',
+  'pages.project.di.step.pulsar.pollBatchSize': 'Poll Batch Size',
+  'pages.project.di.step.pulsar.cursorStartupMode': 'Cursor Startup Mode',
+  'pages.project.di.step.pulsar.cursorStartupTimestamp': 'Cursor Startup Timestamp',
+  'pages.project.di.step.pulsar.cursorResetMode': 'Cursor Reset Mode',
+  'pages.project.di.step.pulsar.cursorStopMode': 'Cursor Stop Mode',
+  'pages.project.di.step.pulsar.cursorStopMode.tooltip': 'Never means stream and others mean batch',
+  'pages.project.di.step.pulsar.cursorStopTimestamp': 'Cursor Stop Timestamp',
+
+  // datahub
+  'pages.project.di.step.datahub.endpoint': 'Endpoint',
+  'pages.project.di.step.datahub.accessId': 'Access Id',
+  'pages.project.di.step.datahub.accessKey': 'Access Key',
+  'pages.project.di.step.datahub.project': 'Project',
+  'pages.project.di.step.datahub.topic': 'Topic',
+  'pages.project.di.step.datahub.timeout': 'Connection Timeout(milliseconds)',
+  'pages.project.di.step.datahub.retryTimes': 'Retry Times',
+  'pages.project.di.step.datahub.retryTimes.tooltip': '0 means disable retry',
+
+  // elasticsearch
+  'pages.project.di.step.elasticsearch.hosts': 'Hosts',
+  'pages.project.di.step.elasticsearch.username': 'Username',
+  'pages.project.di.step.elasticsearch.password': 'Password',
+  'pages.project.di.step.elasticsearch.index': 'Index',
+  'pages.project.di.step.elasticsearch.maxRetrySize': 'Max Retry Size',
+  'pages.project.di.step.elasticsearch.maxBatchSize': 'Max Batch Size',
+
+  // neo4j
+  'pages.project.di.step.neo4j.uri': 'URI',
+  'pages.project.di.step.neo4j.username': 'Username',
+  'pages.project.di.step.neo4j.password': 'Password',
+  'pages.project.di.step.neo4j.bearerToken': 'Bearer Token Header',
+  'pages.project.di.step.neo4j.kerberosTicket': 'Kerberos Ticket',
+  'pages.project.di.step.neo4j.database': 'Database',
+  'pages.project.di.step.neo4j.query': 'Query',
+  'pages.project.di.step.neo4j.queryParamPosition': 'Query Param Position',
+  'pages.project.di.step.neo4j.queryParamPosition.tooltip': 'Query Param Position Mapping',
+  'pages.project.di.step.neo4j.queryParamPosition.list': 'Mapping',
+  'pages.project.di.step.neo4j.field': 'Field',
+  'pages.project.di.step.neo4j.position': 'Position',
+  'pages.project.di.step.neo4j.maxConnectionTimeout': 'Max Connection Timeout(seconds)',
+  'pages.project.di.step.neo4j.maxTransactionRetryTime': 'Max Transaction Retry Time(seconds)',
+
+  // sentry
+  'pages.project.di.step.sentry.dsn': 'DSN',
+  'pages.project.di.step.sentry.env': 'Env',
+  'pages.project.di.step.sentry.release': 'Release',
+  'pages.project.di.step.sentry.enableExternalConfiguration': 'Enable External Configuration',
+  'pages.project.di.step.sentry.cacheDirPath': 'Cache Dir Path',
+  'pages.project.di.step.sentry.maxCacheItems': 'Max Cache Items',
+  'pages.project.di.step.sentry.flushTimeoutMillis': 'Flush Timeout(milliseconds)',
+  'pages.project.di.step.sentry.maxQueueSize': 'Max Queue Size',
+
+  'pages.project.job.create': '创建作业',
+  'pages.project.job.createTime': '创建时间',
+  'pages.project.job.name': '作业名称',
+  'pages.project.job.type': '作业类型',
+  'pages.project.job.creator': '创建人',
+  'pages.project.job.remark': '备注',
+  'pages.project.job.list': '作业列表',
 };
